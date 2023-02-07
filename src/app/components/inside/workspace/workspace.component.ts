@@ -10,7 +10,7 @@ import { DataService } from 'src/app/services/data.service';
   styleUrls: ['./workspace.component.scss'],
 })
 export class WorkspaceComponent implements OnInit {
-  boards: any[] = [];
+  boards: any = [];
   user = this.auth.currentUser;
 
   constructor(
@@ -21,13 +21,19 @@ export class WorkspaceComponent implements OnInit {
 
   async ngOnInit() {
     this.boards = await this.dataService.getBoards();
-    console.log('this.boards :', this.boards);
-    console.log(this.user);
   }
 
   async startBoard() {
-    const data = await this.dataService.startBoard();
-    console.log('data: ', data);
+    await this.dataService.startBoard();
+    this.boards = await this.dataService.getBoards();
+
+    if (this.boards.length > 0) {
+      const newBoard = this.boards.pop();
+
+      if (newBoard.boards) {
+        this.router.navigateByUrl(`/workspace/${newBoard.boards.id}`);
+      }
+    }
   }
 
   signOut() {

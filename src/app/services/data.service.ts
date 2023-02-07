@@ -20,10 +20,15 @@ export class DataService {
     );
   }
   async startBoard() {
-    this.supabase.from(BOARDS_TABLE).insert({});
+    return this.supabase
+      .from(BOARDS_TABLE)
+      .insert({}, { returning: 'minimal' });
   }
   async getBoards() {
-    const boards = await this.supabase.from(USER_BOARDS_TABLE).select('*');
+    const boards = await this.supabase
+      .from(USER_BOARDS_TABLE)
+      .select('boards:board_id(*)');
+    console.log('boards: ', boards.data);
     return boards.data || [];
   }
 }
