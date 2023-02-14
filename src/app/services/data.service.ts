@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export const BOARDS_TABLE = 'boards';
@@ -135,9 +136,29 @@ export class DataService {
         },
         { returning: 'minimal' }
       );
+      console.log('UserBoard: ', userBoard);
       return userBoard;
     } else {
       return null;
     }
+  }
+  getTableChanges() {
+    const changes = new Subject();
+
+    this.supabase
+      .from(CARDS_TABLE)
+      .on('*', (payload) => {
+        changes.next(payload);
+      })
+      .subscribe();
+
+    this.supabase
+      .from(LISTS_TABLE)
+      .on('*', (payload) => {
+        changes.next(payload);
+      })
+      .subscribe();
+
+    return changes.asObservable();
   }
 }
